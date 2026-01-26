@@ -54,4 +54,4 @@ This project implements an LSTM-based Language Model trained on "The Adventures 
 ## UI Overview
 *(Watch the screen recording to see the generation in action)*
 
-<video src="Screen%20Recording%202569-01-26%20at%2017.06.06.mov" controls="controls" width="100%"></video>
+<video src="WebUI_review.mov" controls="controls" width="100%"></video>
