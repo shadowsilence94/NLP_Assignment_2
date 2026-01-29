@@ -72,3 +72,11 @@ Open http://localhost:5000 in your browser.
 
 **HTUT KO KO** (st126010)
 AIT - Data Science and AI
+
+## 🔧 Troubleshooting
+
+### Deployment (502 Bad Gateway)
+If you encounter 502 errors on Render (Free Tier):
+- **Memory Limit**: Free tier has 512MB RAM. The models use ~180MB + PyTorch overhead.
+- **Solution**: The app uses **dynamic quantization** (int8) to reduce memory usage by 4x and unloads unused models automatically.
+- **Timeout**: Gunicorn timeout is set to 120s to handle initial model loading.
