@@ -160,6 +160,7 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
     prompt_clean = re.sub(r'[^a-z0-9\s.,!?()]', '', prompt_clean)
     tokens = prompt_clean.split()
     
+    # Initial pass with prompt
     unk_index = vocab.stoi.get('<unk>', 0)
     eos_index = vocab.stoi.get('<eos>', 2)
     indices = [vocab.stoi.get(t, unk_index) for t in tokens]
@@ -167,11 +168,18 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
     batch_size = 1
     hidden = model.init_hidden(batch_size, device)
     
+    # Process the prompt tokens first to build up hidden state
+    prompt_input = torch.LongTensor([indices]).to(device)
+    _, hidden = model(prompt_input, hidden)
+    
+    # Generate new tokens
     generated_count = 0
+    # Start with the last token of the prompt as input for generation
+    current_input = torch.LongTensor([[indices[-1]]]).to(device)
+    
     with torch.no_grad():
         while generated_count < max_seq_len:
-            src = torch.LongTensor([indices]).to(device)
-            prediction, hidden = model(src, hidden)
+            prediction, hidden = model(current_input, hidden)
             
             logits = prediction[:, -1] / temperature
             
@@ -182,12 +190,15 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
             probs = torch.softmax(logits, dim=-1)    
             prediction_idx = torch.multinomial(probs, num_samples=1).item()    
             
-            # Skip EOS token, don't add it and don't break - continue generating
+            # Stop if EOS is generated
             if prediction_idx == eos_index:
-                continue
+                break
                 
             indices.append(prediction_idx)
             generated_count += 1
+            
+            # Update input for next step (feed only the predicted token)
+            current_input = torch.LongTensor([[prediction_idx]]).to(device)
 
     generated_tokens = [vocab.itos[i] for i in indices if vocab.itos[i] not in ['<unk>', '<eos>', '<pad>']]
     return ' '.join(generated_tokens)
