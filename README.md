@@ -1,57 +1,74 @@
-# NLP Assignment 2: Language Model
+# NLP Assignment 2: LSTM Language Model
 
-This project implements an LSTM-based Language Model trained on "The Adventures of Sherlock Holmes". It includes two notebooks for training (Manual from Scratch using professor's codes and PyTorch versions) and a web application for generating text.
+A dual-dataset LSTM Language Model trained on **Sherlock Holmes** and **Stranger Things** dialogue, with an interactive web interface for text generation.
 
-## Project Structure
+## 🎯 Features
 
-- **`project/`**: Main folder.
-  - **`Assignment_Notebook.ipynb`**: Universal notebook (Manual Batching) compatible with Colab/M4/M2.
-  - **`Assignment_Notebook_PyTorch.ipynb`**: Universal notebook (Standard PyTorch) compatible with Colab/M4/M2.
-  - **`Sherlock_Holmes.txt`**: Dataset.
-  - **`app/`**: Flask Web Application.
-    - `app.py`: Backend logic.
-    - `model.pt`: Trained model weights (place here after training).
-    - `vocab.pt`: Vocabulary file (place here after training).
-    - `templates/index.html`: Frontend UI.
+- **Two Pre-trained Models**:
+  - Sherlock Holmes (The Adventures of Sherlock Holmes)
+  - Stranger Things (TV Series Dialogue S1-S4)
+- **Interactive Web UI**:
+  - Model selector dropdown
+  - Quick prompt buttons
+  - Adjustable token count (10-200)
+  - Temperature control (0.1-2.0)
+  - Dynamic theming per dataset
 
-## How to Run
+## 📁 Project Structure
 
-### 1. Training (Google Colab or Local)
+```
+project_A2/
+├── Assignment_Notebook.ipynb              # Sherlock Holmes (Manual Batching)
+├── Assignment_Notebook_PyTorch.ipynb      # Sherlock Holmes (PyTorch)
+├── Assignment_Notebook_StrangerThings.ipynb  # Stranger Things
+├── Sherlock_Holmes.txt                    # Sherlock dataset
+├── stranger_things_data.csv               # Stranger Things dataset
+├── app/
+│   ├── app.py                             # Flask backend
+│   ├── sherlock_model.pt                  # Trained Sherlock model
+│   ├── sherlock_vocab.pt                  # Sherlock vocabulary
+│   ├── stranger_things_model.pt           # Trained Stranger Things model
+│   ├── stranger_things_vocab.pt           # Stranger Things vocabulary
+│   └── templates/index.html               # Web UI
+└── README.md
+```
 
-1. Open either `Assignment_Notebook.ipynb` or `Assignment_Notebook_PyTorch.ipynb`.
-2. Run the first cell ("Setup and configuration"). It will detect if you are on Colab (mounts Drive) or Local (sets path).
-3. **Important**: Check the "Hardware / Model Settings" block.
-   - Uncomment **Option A** for High Performance (M4 Mac / Colab GPU).
-   - Use **Option B** (Default) for Standard (M2 Mac).
-4. Run all cells to train the model and save `model.pt` and `vocab.pt` to the `app/` folder.
+## 🚀 Quick Start
 
-### 2. Web Application
+### Run Locally
 
-1. Navigate to the `app` folder:
-   ```bash
-   cd project/app
-   ```
-2. Ensure `model.pt` and `vocab.pt` are present.
-3. Run the app:
-   ```bash
-   python app.py
-   ```
-4. Open your browser at `http://localhost:5000`.
+```bash
+cd app
+pip install flask torch
+python app.py
+```
 
-## Training Results
+Open http://localhost:5000 in your browser.
 
-| Epoch | Train PPL | Valid PPL |
-| :---: | :---: | :---: |
-| 1 | 537.53 | 229.07 |
-| 10 | 59.89 | 73.38 |
-| 20 | 34.11 | 71.90 |
-| 30 | 33.99 | 71.96 |
-| 40 | 34.00 | 71.96 |
-| 50 | 34.17 | 71.96 |
+### Training (Optional)
 
-*Table 1. Training and Validation Perplexity (PyTorch Version).*
+1. Open either notebook in Google Colab
+2. Run all cells to train
+3. Models save to `app/` folder automatically
 
-## UI Overview
-*(Watch the screen recording to see the generation in action)*
+## 📊 Training Results
 
-<video src="WebUI_review.mov" controls="controls" width="100%"></video>
+| Dataset | Train PPL | Valid PPL | Epochs |
+|---------|-----------|-----------|--------|
+| Sherlock Holmes | 34.17 | 71.96 | 50 |
+| Stranger Things | 26.40 | 60.66 | 50 |
+
+## 🎬 Demo
+
+<video src="WebUI_review.mov" controls width="100%"></video>
+
+## 🛠️ Tech Stack
+
+- **Backend**: Flask, PyTorch
+- **Frontend**: HTML, CSS, JavaScript
+- **Model**: LSTM (1024 embedding, 1024 hidden, 2 layers)
+
+## 📝 Author
+
+**HTUT KO KO** (st126010)  
+AIT - Data Science and AI

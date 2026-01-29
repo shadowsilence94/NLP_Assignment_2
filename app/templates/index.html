@@ -3,92 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sherlock Holmes Text Generator</title>
+    <title>Text Generator</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Georgia', serif;
+            background-color: #1a1a2e;
+            color: #eee;
             margin: 0;
+            padding: 20px;
+            min-height: 100vh;
         }
         .container {
-            background-color: white;
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #16213e;
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
         }
         h1 {
-            color: #2c3e50;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            color: #e94560;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Model Selector */
+        .model-selector {
+            margin-bottom: 1.5rem;
+        }
+        .model-selector label {
+            display: block;
             margin-bottom: 0.5rem;
+            font-weight: bold;
         }
-        p.subtitle {
-            color: #7f8c8d;
-            margin-bottom: 2rem;
-        }
-        textarea {
+        .model-selector select {
             width: 100%;
             padding: 10px;
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background-color: #1a1a2e;
+            color: #eee;
             font-size: 1rem;
-            margin-bottom: 1rem;
+        }
+        
+        /* Quick Prompts */
+        .quick-prompts {
+            margin-bottom: 1.5rem;
+        }
+        .quick-prompts label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .prompt-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .prompt-btn {
+            background-color: #0f3460;
+            color: #eee;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .prompt-btn:hover {
+            background-color: #e94560;
+        }
+        
+        /* Text Input */
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background-color: #1a1a2e;
+            color: #eee;
+            font-size: 1rem;
+            font-family: inherit;
             resize: vertical;
             min-height: 80px;
+            margin-bottom: 1rem;
         }
-        button {
-            background-color: #3498db;
+        textarea::placeholder {
+            color: #666;
+        }
+        
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .control-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+        }
+        .control-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background-color: #1a1a2e;
+            color: #eee;
+            font-size: 1rem;
+        }
+        .control-value {
+            color: #e94560;
+            font-weight: bold;
+        }
+        
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #e94560;
             color: white;
             border: none;
-            padding: 12px 24px;
+            border-radius: 4px;
             font-size: 1rem;
-            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            font-weight: bold;
         }
-        button:hover {
-            background-color: #2980b9;
+        .submit-btn:hover {
+            background-color: #c73e54;
         }
+        
+        /* Result */
         .result {
-            margin-top: 2rem;
-            text-align: left;
-            background-color: #f9f9f9;
+            margin-top: 1.5rem;
             padding: 1rem;
-            border-radius: 8px;
-            border-left: 5px solid #3498db;
+            background-color: #1a1a2e;
+            border-left: 4px solid #e94560;
+            border-radius: 4px;
         }
         .result h3 {
-            margin-top: 0;
-            color: #2c3e50;
+            margin: 0 0 0.5rem 0;
+            color: #e94560;
+            font-size: 1rem;
+        }
+        .result p {
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        /* Stranger Things theme override */
+        body.stranger-things {
+            background-color: #1a0a0a;
+        }
+        body.stranger-things .container {
+            background-color: #2a0a0a;
+            border-color: #4a1a1a;
+        }
+        body.stranger-things h1 {
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        body.stranger-things .prompt-btn:hover,
+        body.stranger-things .submit-btn {
+            background-color: #cc0000;
+        }
+        body.stranger-things .result {
+            border-left-color: #ff0000;
+        }
+        body.stranger-things .result h3,
+        body.stranger-things .control-value {
+            color: #ff0000;
         }
     </style>
 </head>
-<body>
+<body class="{{ 'stranger-things' if model == 'stranger_things' else '' }}">
     <div class="container">
-        <h1>Sherlock Text Generator</h1>
-        <p class="subtitle">Based on "The Adventures of Sherlock Holmes"</p>
+        <h1 id="title">{{ 'Stranger Things' if model == 'stranger_things' else 'Sherlock Holmes' }} Text Generator</h1>
+        <p class="subtitle">{{ 'Based on Stranger Things TV Series (S1-S4)' if model == 'stranger_things' else 'Based on "The Adventures of Sherlock Holmes"' }}</p>
         
-        <form method="POST">
-            <textarea name="prompt" placeholder="Enter a prompt like 'Sherlock Holmes is'...">{{ prompt if prompt else '' }}</textarea>
-            
-            <div style="text-align: left; margin-bottom: 1rem;">
-                <label for="temperature">Creativity (Temperature): <span id="temp-val">{{ temperature if temperature else '0.7' }}</span></label>
-                <input type="range" id="temperature" name="temperature" min="0.1" max="2.0" step="0.1" value="{{ temperature if temperature else '0.7' }}" oninput="document.getElementById('temp-val').innerText = this.value" style="width: 100%;">
-                
-                <label for="top_k" style="margin-top: 10px; display: block;">Topic Focus (Top-K): <span id="top-k-val">{{ top_k if top_k else '5' }}</span></label>
-                <input type="range" id="top_k" name="top_k" min="0" max="50" step="1" value="{{ top_k if top_k else '5' }}" oninput="document.getElementById('top-k-val').innerText = this.value" style="width: 100%;">
-                <small style="color: #7f8c8d;">(0 = Disable Top-K, 1 = Deterministic, 50 = Diverse)</small>
+        <form method="POST" id="genForm">
+            <!-- Model Selector -->
+            <div class="model-selector">
+                <label>Select Dataset:</label>
+                <select name="model" id="modelSelect" onchange="updateTheme()">
+                    <option value="sherlock" {{ 'selected' if model != 'stranger_things' else '' }}>Sherlock Holmes</option>
+                    <option value="stranger_things" {{ 'selected' if model == 'stranger_things' else '' }}>Stranger Things</option>
+                </select>
             </div>
-
-            <button type="submit">Generate Text</button>
+            
+            <!-- Quick Prompts -->
+            <div class="quick-prompts">
+                <label>Quick Prompts:</label>
+                <div class="prompt-buttons" id="promptButtons">
+                    <!-- Populated by JavaScript based on model -->
+                </div>
+            </div>
+            
+            <!-- Text Input -->
+            <textarea name="prompt" id="promptInput" placeholder="Enter your prompt here...">{{ prompt if prompt else '' }}</textarea>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <label>Token Count: <span class="control-value" id="tokenVal">{{ token_count if token_count else 50 }}</span></label>
+                    <input type="range" name="token_count" id="tokenCount" min="10" max="200" step="10" value="{{ token_count if token_count else 50 }}" oninput="document.getElementById('tokenVal').innerText = this.value">
+                </div>
+                <div class="control-group">
+                    <label>Temperature: <span class="control-value" id="tempVal">{{ temperature if temperature else 0.7 }}</span></label>
+                    <input type="range" name="temperature" id="temperature" min="0.1" max="2.0" step="0.1" value="{{ temperature if temperature else 0.7 }}" oninput="document.getElementById('tempVal').innerText = this.value">
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Generate Text</button>
         </form>
-
+        
         {% if generated %}
         <div class="result">
             <h3>Generated Text:</h3>
@@ -96,5 +237,36 @@
         </div>
         {% endif %}
     </div>
+    
+    <script>
+        const sherlockPrompts = ['Sherlock Holmes', 'The case of', 'Watson observed', 'Elementary my dear', 'London fog'];
+        const strangerPrompts = ['Eleven', 'The Upside Down', 'Hawkins Indiana', 'Friends dont lie', 'The Mind Flayer'];
+        
+        function updatePrompts() {
+            const model = document.getElementById('modelSelect').value;
+            const container = document.getElementById('promptButtons');
+            const prompts = model === 'stranger_things' ? strangerPrompts : sherlockPrompts;
+            
+            container.innerHTML = '';
+            prompts.forEach(p => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'prompt-btn';
+                btn.innerText = p;
+                btn.onclick = () => { document.getElementById('promptInput').value = p; };
+                container.appendChild(btn);
+            });
+        }
+        
+        function updateTheme() {
+            const model = document.getElementById('modelSelect').value;
+            document.body.className = model === 'stranger_things' ? 'stranger-things' : '';
+            document.getElementById('title').innerText = (model === 'stranger_things' ? 'Stranger Things' : 'Sherlock Holmes') + ' Text Generator';
+            updatePrompts();
+        }
+        
+        // Initialize on page load
+        updatePrompts();
+    </script>
 </body>
 </html>
