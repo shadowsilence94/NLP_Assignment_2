@@ -112,8 +112,12 @@ def load_model(model_key):
             gc.collect()
 
         __main__.SimpleVocab = SimpleVocab
+        __main__.LSTMLanguageModel = LSTMLanguageModel # Inject Model Class
+        
         if 'vocab' not in sys.modules:
             sys.modules['__main__'].SimpleVocab = SimpleVocab
+        if 'app' not in sys.modules: # Ensure model class is findable
+             sys.modules['__main__'].LSTMLanguageModel = LSTMLanguageModel
         
         vocab = torch.load(vocab_path, map_location=device, weights_only=False)
         # Check if pre-quantized model exists (from build step)
