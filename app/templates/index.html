@@ -243,12 +243,10 @@
             <button type="submit" class="submit-btn">Generate Text</button>
         </form>
         
-        {% if generated %}
-        <div class="result">
+        <div class="result" id="resultDiv" style="display: {{ 'block' if generated else 'none' }}">
             <h3>Generated Text:</h3>
-            <p>{{ generated }}</p>
+            <p id="resultText">{{ generated }}</p>
         </div>
-        {% endif %}
 
         <div class="footer">
             <p>Developed by <strong>HTUT KO KO</strong> (st126010)</p>
@@ -282,6 +280,56 @@
             document.getElementById('title').innerText = (model === 'stranger_things' ? 'Stranger Things' : 'Sherlock Holmes') + ' Text Generator';
             updatePrompts();
         }
+        
+        // Handle Form Submission for Streaming
+        const form = document.getElementById('genForm');
+        const resultDiv = document.getElementById('resultDiv');
+        const resultText = document.getElementById('resultText');
+        
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('promptInput').value;
+            const model = document.getElementById('modelSelect').value;
+            const tokenCount = document.getElementById('tokenCount').value;
+            const temp = document.getElementById('temperature').value;
+            
+            // Show result container and clear previous
+            resultDiv.style.display = 'block';
+            resultText.innerText = '';
+            
+            // Disable button
+            const btn = document.querySelector('.submit-btn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Generating...';
+            
+            // Start EventSource
+            const url = `/generate_stream?prompt=${encodeURIComponent(prompt)}&model_key=${model}&token_count=${tokenCount}&temperature=${temp}`;
+            const evtSource = new EventSource(url);
+            
+            evtSource.onmessage = function(e) {
+                if (e.data === "[DONE]") {
+                    evtSource.close();
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    return;
+                }
+                resultText.innerText += e.data;
+                // Auto-scroll to bottom of text
+                // window.scrollTo(0, document.body.scrollHeight);
+            };
+            
+            evtSource.onerror = function(e) {
+                console.error("EventSource failed:", e);
+                evtSource.close();
+                btn.disabled = false;
+                btn.innerText = originalText;
+                if (resultText.innerText === '') {
+                    resultText.innerText = "Error: Connection failed or timed out.";
+                }
+            };
+        };
         
         // Initialize on page load
         updatePrompts();

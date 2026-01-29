@@ -91,7 +91,7 @@ def quantize_and_save(model_name, model_file, vocab_file):
         # Save Quantized Model
         output_file = f"{model_name}_quantized.pt"
         torch.save(quantized_model, output_file)
-        print(f"Saved: {output_file} (Size: {os.path.getsize(output_file) / 1024 / 1024:.2f} MB)")
+        print(f"Saved: {os.path.abspath(output_file)} (Size: {os.path.getsize(output_file) / 1024 / 1024:.2f} MB)")
     except Exception as e:
         print(f"Error validating/saving quantized model: {e}")
 
@@ -100,8 +100,10 @@ if __name__ == "__main__":
     # Render build runs from root. build command: python app/quantize_models.py
     # But the files are in app/
     
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(base_dir) # Change to app/ directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"Script Directory: {current_dir}")
+    os.chdir(current_dir) # Change to app/ directory
+    print(f"Working Directory changed to: {os.getcwd()}")
     
     quantize_and_save("sherlock", "sherlock_model.pt", "sherlock_vocab.pt")
     quantize_and_save("stranger_things", "stranger_things_model.pt", "stranger_things_vocab.pt")

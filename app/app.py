@@ -166,19 +166,20 @@ def load_model(model_key):
 load_model('sherlock')
 
 # Generation Function
-def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7, top_k=10):
+# Streaming Generation Function
+def generate_text_stream(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7, top_k=10):
     model, vocab = load_model(model_key)
     if not model or not vocab:
-        return f"Model '{model_key}' not loaded. Please train the model first."
+        yield f"Error: Model '{model_key}' not loaded."
+        return
     
-    # Better tokenization - lowercase and split on spaces
+    # Better tokenization
     import re
     prompt_clean = prompt.lower()
     prompt_clean = re.sub(r'([.,!?()])', r' \1 ', prompt_clean)
     prompt_clean = re.sub(r'[^a-z0-9\s.,!?()]', '', prompt_clean)
     tokens = prompt_clean.split()
     
-    # Initial pass with prompt
     unk_index = vocab.stoi.get('<unk>', 0)
     eos_index = vocab.stoi.get('<eos>', 2)
     indices = [vocab.stoi.get(t, unk_index) for t in tokens]
@@ -186,21 +187,20 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
     batch_size = 1
     hidden = model.init_hidden(batch_size, device)
     
-    # Process the prompt tokens first to build up hidden state
+    # Process prompt
     prompt_input = torch.LongTensor([indices]).to(device)
-    print(f"DEBUG: Processing prompt with length {len(indices)}")
     _, hidden = model(prompt_input, hidden)
-    print("DEBUG: Prompt processed.")
     
-    # Generate new tokens
+    # Yield initial tokens (optional, or just stream new ones)
+    # for t in tokens:
+    #     yield t + " "
+    
     generated_count = 0
-    # Start with the last token of the prompt as input for generation
     current_input = torch.LongTensor([[indices[-1]]]).to(device)
     
     with torch.no_grad():
         while generated_count < max_seq_len:
             prediction, hidden = model(current_input, hidden)
-            
             logits = prediction[:, -1] / temperature
             
             if top_k > 0:
@@ -210,21 +210,41 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
             probs = torch.softmax(logits, dim=-1)    
             prediction_idx = torch.multinomial(probs, num_samples=1).item()    
             
-            # Stop if EOS is generated
             if prediction_idx == eos_index:
-                print("DEBUG: EOS generated.")
                 break
                 
-            indices.append(prediction_idx)
+            token_word = vocab.itos[prediction_idx]
+            if token_word not in ['<unk>', '<eos>', '<pad>']:
+                yield token_word + " "
+                
             generated_count += 1
-            if generated_count % 10 == 0:
-                print(f"DEBUG: Generated {generated_count} tokens")
-            
-            # Update input for next step (feed only the predicted token)
             current_input = torch.LongTensor([[prediction_idx]]).to(device)
 
-    generated_tokens = [vocab.itos[i] for i in indices if vocab.itos[i] not in ['<unk>', '<eos>', '<pad>']]
-    return ' '.join(generated_tokens)
+@app.route('/generate_stream', methods=['GET'])
+def generate_stream():
+    prompt = request.args.get('prompt', '')
+    model_key = request.args.get('model_key', 'sherlock')
+    try:
+        max_seq_len = int(request.args.get('token_count', 50))
+        temperature = float(request.args.get('temperature', 0.7))
+    except ValueError:
+        max_seq_len = 50
+        temperature = 0.7
+        
+    def generate():
+        for token in generate_text_stream(prompt, model_key, max_seq_len, temperature):
+            yield f"data: {token}\n\n"
+        yield "data: [DONE]\n\n"
+        
+    return Response(generate(), mimetype='text/event-stream')
+
+# Keep original for backward compat (though unused by new UI)
+def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7, top_k=10):
+    full_text = ""
+    for token in generate_text_stream(prompt, model_key, max_seq_len, temperature, top_k):
+        full_text += token
+    return full_text
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
