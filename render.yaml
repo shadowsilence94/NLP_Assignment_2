@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: nlp-text-generator
+    runtime: python
+    buildCommand: pip install -r app/requirements.txt
+    startCommand: cd app && gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
