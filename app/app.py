@@ -97,6 +97,13 @@ def load_model(model_key):
         return None, None
     
     try:
+        # Inject SimpleVocab into __main__ for unpickling compatibility
+        import sys
+        import __main__
+        __main__.SimpleVocab = SimpleVocab
+        if 'vocab' not in sys.modules:
+            sys.modules['__main__'].SimpleVocab = SimpleVocab
+        
         vocab = torch.load(vocab_path, map_location=device, weights_only=False)
         vocab_size = len(vocab)
         
