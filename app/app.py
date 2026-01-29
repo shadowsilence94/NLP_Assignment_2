@@ -100,6 +100,17 @@ def load_model(model_key):
         # Inject SimpleVocab into __main__ for unpickling compatibility
         import sys
         import __main__
+        import gc
+        
+        # Clear existing models from memory to prevent OOM
+        if loaded_models:
+            keys = list(loaded_models.keys())
+            for k in keys:
+                if k != model_key:
+                    del loaded_models[k]
+                    del loaded_vocabs[k]
+            gc.collect()
+
         __main__.SimpleVocab = SimpleVocab
         if 'vocab' not in sys.modules:
             sys.modules['__main__'].SimpleVocab = SimpleVocab
@@ -115,6 +126,14 @@ def load_model(model_key):
             config['dropout_rate']
         ).to(device)
         model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
+        
+        # Apply dynamic quantization to reduce memory usage (4x smaller)
+        if device.type == 'cpu':
+            model = torch.quantization.quantize_dynamic(
+                model, {nn.LSTM, nn.Linear}, dtype=torch.qint8
+            )
+            print(f"Quantized {model_key} model for CPU.")
+            
         model.eval()
         
         loaded_models[model_key] = model
