@@ -117,13 +117,23 @@ def load_model(model_key):
         
         vocab = torch.load(vocab_path, map_location=device, weights_only=False)
         # Check if pre-quantized model exists (from build step)
-        quantized_path = os.path.join(app.root_path, f'{model_key}_quantized.pt')
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        quantized_path = os.path.join(base_dir, f'{model_key}_quantized.pt')
+        
         if os.path.exists(quantized_path):
             print(f"Loading pre-quantized model from {quantized_path}...")
             model = torch.load(quantized_path, map_location=device, weights_only=False)
             print(f"Successfully loaded quantized {model_key}")
         else:
-            print(f"Pre-quantized model not found. Loading full model from {model_path}...")
+            print(f"Pre-quantized model not found at {quantized_path}")
+            print(f"Current Dir: {os.getcwd()}")
+            print(f"Base Dir: {base_dir}")
+            try:
+                print(f"Files in {base_dir}: {os.listdir(base_dir)}")
+            except:
+                pass
+                
+            print(f"Loading full model from {model_path}...")
             vocab_size = len(vocab)
             
             model = LSTMLanguageModel(
