@@ -2,7 +2,7 @@
 
 A dual-dataset LSTM Language Model trained on **Sherlock Holmes** and **Stranger Things** dialogue, with an interactive web interface for text generation.
 
-## 🎯 Features
+## Features
 
 - **Two Pre-trained Models**:
   - Sherlock Holmes (The Adventures of Sherlock Holmes)
@@ -33,7 +33,7 @@ project_A2/
 └── README.md
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Run Locally
 
@@ -51,24 +51,24 @@ Open http://localhost:5000 in your browser.
 2. Run all cells to train
 3. Models save to `app/` folder automatically
 
-## 📊 Training Results
+## Training Results
 
-| Dataset | Train PPL | Valid PPL | Epochs |
-|---------|-----------|-----------|--------|
-| Sherlock Holmes | 34.17 | 71.96 | 50 |
-| Stranger Things | 26.40 | 60.66 | 50 |
+| Dataset         | Train PPL | Valid PPL | Epochs |
+| --------------- | --------- | --------- | ------ |
+| Sherlock Holmes | 34.17     | 71.96     | 50     |
+| Stranger Things | 26.40     | 60.66     | 50     |
 
-## 🎬 Demo
+## Demo
 
 <video src="WebUI_review.mov" controls width="100%"></video>
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend**: Flask, PyTorch
 - **Frontend**: HTML, CSS, JavaScript
 - **Model**: LSTM (1024 embedding, 1024 hidden, 2 layers)
 
-## 📝 Author
+## Author
 
-**HTUT KO KO** (st126010)  
+**HTUT KO KO** (st126010)
 AIT - Data Science and AI
