@@ -25,12 +25,7 @@ project_A2/
 ├── stranger_things_data.csv               # Stranger Things dataset
 ├── app/
 │   ├── app.py                             # Flask backend
-│   ├── sherlock_model.pt                  # Trained Sherlock model
-│   ├── sherlock_vocab.pt                  # Sherlock vocabulary
-│   ├── stranger_things_model.pt           # Trained Stranger Things model
-│   ├── stranger_things_vocab.pt           # Stranger Things vocabulary
-│   └── templates/index.html               # Web UI
-└── README.md
+│   ├── sherlock_model.pt                  # Trained SherlThis page isn’t working
 ```
 
 ## Quick Start
@@ -60,7 +55,7 @@ Open http://localhost:5000 in your browser.
 
 ## Demo
 
-<video src="WebUI_review.mov" controls width="100%"></video>
+![WebUI Demo](./WebUI_review.gif)
 
 ## Tech Stack
 
@@ -76,7 +71,9 @@ AIT - Data Science and AI
 ## 🔧 Troubleshooting
 
 ### Deployment (502 Bad Gateway)
+
 If you encounter 502 errors on Render (Free Tier):
+
 - **Memory Limit**: Free tier has 512MB RAM. The models use ~180MB + PyTorch overhead.
 - **Solution**: The app uses **dynamic quantization** (int8) to reduce memory usage by 4x and unloads unused models automatically.
 - **Timeout**: Gunicorn timeout is set to 120s to handle initial model loading.
