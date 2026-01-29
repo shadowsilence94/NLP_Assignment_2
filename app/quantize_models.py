@@ -39,12 +39,19 @@ def quantize_and_save(model_name, model_file, vocab_file):
     print(f"Processing {model_name}...")
     device = torch.device('cpu')
     
-    # On Render (Linux x86), default engine usually works. 
-    # But setting it to fbgemm is safer for x86.
-    # However, to be generic, we can check arch.
+    # Set quantization engine based on architecture
     import platform
     arch = platform.machine()
     print(f"Architecture: {arch}")
+    
+    if 'arm' in arch.lower() or 'aarch' in arch.lower():
+        # Mac M1/M2/M3 uses qnnpack
+        torch.backends.quantized.engine = 'qnnpack'
+    else:
+        # x86 (Render/Linux) uses fbgemm
+        torch.backends.quantized.engine = 'fbgemm'
+        
+    print(f"Using quantization engine: {torch.backends.quantized.engine}")
     
     # Check if files exist
     if not os.path.exists(model_file) or not os.path.exists(vocab_file):
