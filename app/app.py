@@ -166,12 +166,11 @@ def load_model(model_key):
         print(f"Error loading {model_key}: {e}")
         return None, None
 
-# Pre-load Sherlock model (always available)
-load_model('sherlock')
+# Pre-load Stranger Things model (default)
+load_model('stranger_things')
 
-# Generation Function
 # Streaming Generation Function
-def generate_text_stream(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7, top_k=10):
+def generate_text_stream(prompt, model_key='stranger_things', max_seq_len=60, temperature=0.8, top_k=10):
     model, vocab = load_model(model_key)
     if not model or not vocab:
         yield f"Error: Model '{model_key}' not loaded."
@@ -229,12 +228,12 @@ import json
 @app.route('/generate_stream', methods=['GET'])
 def generate_stream():
     prompt = request.args.get('prompt', '')
-    model_key = request.args.get('model_key', 'sherlock')
+    model_key = request.args.get('model_key', 'stranger_things')
     try:
-        max_seq_len = int(request.args.get('token_count', 100)) # Increased default
-        temperature = float(request.args.get('temperature', 0.8)) # Slightly higher temp for diversity
+        max_seq_len = int(request.args.get('token_count', 60)) # Safe default
+        temperature = float(request.args.get('temperature', 0.8))
     except ValueError:
-        max_seq_len = 100
+        max_seq_len = 60
         temperature = 0.8
         
     def generate():
@@ -246,7 +245,7 @@ def generate_stream():
     return Response(generate(), mimetype='text/event-stream')
 
 # Keep original for backward compat (though unused by new UI)
-def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7, top_k=10):
+def generate_text(prompt, model_key='stranger_things', max_seq_len=60, temperature=0.8, top_k=10):
     full_text = ""
     for token in generate_text_stream(prompt, model_key, max_seq_len, temperature, top_k):
         full_text += token
@@ -257,16 +256,16 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
 def index():
     generated = None
     prompt = None
-    temperature = 0.7
-    token_count = 50
-    model_key = 'sherlock'
+    temperature = 0.8
+    token_count = 60
+    model_key = 'stranger_things'
     
     if request.method == 'POST':
         prompt = request.form.get('prompt', '')
-        model_key = request.form.get('model', 'sherlock')
+        model_key = request.form.get('model', 'stranger_things')
         try:
-            temperature = float(request.form.get('temperature', 0.7))
-            token_count = int(request.form.get('token_count', 50))
+            temperature = float(request.form.get('temperature', 0.8))
+            token_count = int(request.form.get('token_count', 60))
         except:
             pass
             

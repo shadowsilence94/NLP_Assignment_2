@@ -206,18 +206,18 @@
         }
     </style>
 </head>
-<body class="{{ 'stranger-things' if model == 'stranger_things' else '' }}">
+<body class="{{ 'stranger-things' if model != 'sherlock' else '' }}">
     <div class="container">
-        <h1 id="title">{{ 'Stranger Things' if model == 'stranger_things' else 'Sherlock Holmes' }} Text Generator</h1>
-        <p class="subtitle">{{ 'Based on Stranger Things TV Series (S1-S4)' if model == 'stranger_things' else 'Based on "The Adventures of Sherlock Holmes"' }}</p>
+        <h1 id="title">{{ 'Stranger Things' if model != 'sherlock' else 'Sherlock Holmes' }} Text Generator</h1>
+        <p class="subtitle">{{ 'Based on Stranger Things TV Series (S1-S4)' if model != 'sherlock' else 'Based on "The Adventures of Sherlock Holmes"' }}</p>
         
         <form method="POST" id="genForm">
             <!-- Model Selector -->
             <div class="model-selector">
                 <label>Select Dataset:</label>
                 <select name="model" id="modelSelect" onchange="updateTheme()">
-                    <option value="sherlock" {{ 'selected' if model != 'stranger_things' else '' }}>Sherlock Holmes</option>
-                    <option value="stranger_things" {{ 'selected' if model == 'stranger_things' else '' }}>Stranger Things</option>
+                    <option value="stranger_things" {{ 'selected' if model != 'sherlock' else '' }}>Stranger Things</option>
+                    <option value="sherlock" {{ 'selected' if model == 'sherlock' else '' }}>Sherlock Holmes</option>
                 </select>
             </div>
             
