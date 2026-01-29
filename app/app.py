@@ -170,7 +170,9 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
     
     # Process the prompt tokens first to build up hidden state
     prompt_input = torch.LongTensor([indices]).to(device)
+    print(f"DEBUG: Processing prompt with length {len(indices)}")
     _, hidden = model(prompt_input, hidden)
+    print("DEBUG: Prompt processed.")
     
     # Generate new tokens
     generated_count = 0
@@ -192,10 +194,13 @@ def generate_text(prompt, model_key='sherlock', max_seq_len=50, temperature=0.7,
             
             # Stop if EOS is generated
             if prediction_idx == eos_index:
+                print("DEBUG: EOS generated.")
                 break
                 
             indices.append(prediction_idx)
             generated_count += 1
+            if generated_count % 10 == 0:
+                print(f"DEBUG: Generated {generated_count} tokens")
             
             # Update input for next step (feed only the predicted token)
             current_input = torch.LongTensor([[prediction_idx]]).to(device)
