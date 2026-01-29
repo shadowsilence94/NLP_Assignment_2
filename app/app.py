@@ -116,23 +116,31 @@ def load_model(model_key):
             sys.modules['__main__'].SimpleVocab = SimpleVocab
         
         vocab = torch.load(vocab_path, map_location=device, weights_only=False)
-        vocab_size = len(vocab)
-        
-        model = LSTMLanguageModel(
-            vocab_size, 
-            config['emb_dim'], 
-            config['hid_dim'], 
-            config['num_layers'], 
-            config['dropout_rate']
-        ).to(device)
-        model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
-        
-        # Apply dynamic quantization to reduce memory usage (4x smaller)
-        if device.type == 'cpu':
-            model = torch.quantization.quantize_dynamic(
-                model, {nn.LSTM, nn.Linear}, dtype=torch.qint8
-            )
-            print(f"Quantized {model_key} model for CPU.")
+        # Check if pre-quantized model exists (from build step)
+        quantized_path = os.path.join(app.root_path, f'{model_key}_quantized.pt')
+        if os.path.exists(quantized_path):
+            print(f"Loading pre-quantized model from {quantized_path}...")
+            model = torch.load(quantized_path, map_location=device, weights_only=False)
+            print(f"Successfully loaded quantized {model_key}")
+        else:
+            print(f"Pre-quantized model not found. Loading full model from {model_path}...")
+            vocab_size = len(vocab)
+            
+            model = LSTMLanguageModel(
+                vocab_size, 
+                config['emb_dim'], 
+                config['hid_dim'], 
+                config['num_layers'], 
+                config['dropout_rate']
+            ).to(device)
+            model.load_state_dict(torch.load(model_path, map_location=device, weights_only=False))
+            
+            # Apply dynamic quantization to reduce memory usage (4x smaller)
+            if device.type == 'cpu':
+                model = torch.quantization.quantize_dynamic(
+                    model, {nn.LSTM, nn.Linear}, dtype=torch.qint8
+                )
+                print(f"Quantized {model_key} model for CPU (Runtime).")
             
         model.eval()
         

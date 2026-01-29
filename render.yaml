@@ -2,7 +2,7 @@ services:
   - type: web
     name: nlp-text-generator
     runtime: python
-    buildCommand: pip install -r app/requirements.txt
+    buildCommand: pip install -r app/requirements.txt && python app/quantize_models.py
     startCommand: cd app && gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120
     envVars:
       - key: PYTHON_VERSION
