@@ -151,6 +151,10 @@
             background-color: #1a1a2e;
             border-left: 4px solid #e94560;
             border-radius: 4px;
+            /* Fix overflow */
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            white-space: pre-wrap;
         }
         .result h3 {
             margin: 0 0 0.5rem 0;
@@ -315,9 +319,13 @@
                     btn.innerText = originalText;
                     return;
                 }
-                resultText.innerText += e.data;
-                // Auto-scroll to bottom of text
-                // window.scrollTo(0, document.body.scrollHeight);
+                try {
+                    const data = JSON.parse(e.data);
+                    resultText.innerText += data.token;
+                } catch (err) {
+                    console.error("JSON parse error", err);
+                    resultText.innerText += e.data; // Fallback
+                }
             };
             
             evtSource.onerror = function(e) {

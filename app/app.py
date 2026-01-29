@@ -224,20 +224,23 @@ def generate_text_stream(prompt, model_key='sherlock', max_seq_len=50, temperatu
             generated_count += 1
             current_input = torch.LongTensor([[prediction_idx]]).to(device)
 
+import json
+
 @app.route('/generate_stream', methods=['GET'])
 def generate_stream():
     prompt = request.args.get('prompt', '')
     model_key = request.args.get('model_key', 'sherlock')
     try:
-        max_seq_len = int(request.args.get('token_count', 50))
-        temperature = float(request.args.get('temperature', 0.7))
+        max_seq_len = int(request.args.get('token_count', 100)) # Increased default
+        temperature = float(request.args.get('temperature', 0.8)) # Slightly higher temp for diversity
     except ValueError:
-        max_seq_len = 50
-        temperature = 0.7
+        max_seq_len = 100
+        temperature = 0.8
         
     def generate():
         for token in generate_text_stream(prompt, model_key, max_seq_len, temperature):
-            yield f"data: {token}\n\n"
+            # Send as JSON to preserve spaces
+            yield f"data: {json.dumps({'token': token})}\n\n"
         yield "data: [DONE]\n\n"
         
     return Response(generate(), mimetype='text/event-stream')
